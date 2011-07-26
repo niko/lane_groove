@@ -35,7 +35,7 @@ lane_groove is just single threaded, but most of the time it will server the con
 
 h2. Testing config files
 
-lane_groove provides a second binary, lane_groove_test. If you run that within you config file directory you can test the syntax of your configuration files. It will output parsed and re-encoded yaml.
+lane_groove provides a second binary, lane_groove_test. If you run that within your config file directory you can test the syntax of your configuration files. It will output parsed and re-encoded yaml.
 
 h2. Static files
 
@@ -55,7 +55,7 @@ Requests are restricted to the local network (127.0.0.1 10.0.0.0/8 172.16.0.0/12
 
 h2. Requirements
 
-Requirements are xml-simple, sinatra and rack-contrib. For test rack-test.
+Requirements are xml-simple, sinatra and rack-contrib. For tests rack-test.
 
 h2. License
 
