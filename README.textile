@@ -13,6 +13,8 @@ The lane_groove daemon gets started on port 6666, a log and a pid file get gener
 
 Supported formats are json, xml, XML (capitalized xml; don't ask), yaml and rb.
 
+Stop the lane_groove server: @lane_groove stop@.
+
 Requests are restricted to the local network (127.0.0.1 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16). For more security… uhm… use a firewall or something.
 
 Requirements are xml-simple, sinatra and rack-contrib. For test rack-test.
