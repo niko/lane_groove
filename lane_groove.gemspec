@@ -24,5 +24,5 @@ Gem::Specification.new do |s|
   s.add_dependency 'sinatra'
   s.add_dependency 'rack-contrib'
   
-  # s.add_development_dependency 'qed'
+  s.add_development_dependency 'rack-test'
 end
