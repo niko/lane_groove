@@ -1,0 +1,3 @@
+h1. lane_groove
+
+Puts your config-files as yaml into one dir, cd to this dir and enter @lane_groove@. The lane_groove daemon gets started on port 6666, a log and a pid file get generated within the same dir.

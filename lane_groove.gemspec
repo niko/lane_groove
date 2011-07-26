@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.authors      = ['Niko Dittmann']
   s.email        = 'mail@niko-dittmann.com'
   s.homepage     = 'http://github.com/niko/lane_groove'
-  s.description  = 'A small HTTP configuration server. Supports JSON, XML, YAML and rb. Restricts requests to local subnet.'
+  s.description  = 'A small HTTP configuration server. Eats YAML, returns JSON, XML, YAML and rb. Restricts requests to local subnet.'
   s.summary      = s.description # for now
   
   s.files        = Dir['lib/**/*.rb']
