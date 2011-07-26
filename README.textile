@@ -6,4 +6,4 @@ Put your config-files as yaml into one dir, cd to this dir and enter @lane_groov
 
 Supported formats are json, xml, XML (capitalized xml; don't ask), yaml and rb.
 
-Requests are restricted to the local network (127.0.0.1 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16).
+Requests are restricted to the local network (127.0.0.1 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16). For more security… uhm… use a firewall or something.
