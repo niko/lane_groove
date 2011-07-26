@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+require 'forever'
+
+WORKING_DIR = Dir.getwd
+puts "Working directory is #{WORKING_DIR}"
+puts "WARNING: Working directory is empty!" if Dir.glob(File.join(WORKING_DIR, '*.yaml')).empty?
+
+Forever.run do
+  dir WORKING_DIR
+  log File.join(WORKING_DIR, 'lane_groove.log')
+  pid File.join(WORKING_DIR, 'lane_groove.pid')
+  
+  on_ready do
+    at_exit { stop! }
+    require '../lib/app.rb'
+    ConfigApp.run! :port => 6666
+  end
+end
