@@ -15,7 +15,7 @@ class Hash
   end
 end
 
-class ConfigApp < Sinatra::Base
+class LaneGroove < Sinatra::Base
   use Rack::CommonLogger
   use Rack::Access, '/' => %w{ 127.0.0.1 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 }
   

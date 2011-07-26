@@ -1,20 +1,58 @@
 h1. lane_groove
 
+h2. Getting started
+
 Put your config-files as yaml into one dir, cd to this dir and enter @lane_groove@:
 
-<pre><code>$: lane_groove 
+<pre><code>$: lane_groove
 [26/07 17:40:41] Working directory is /Users/niko/laut/config_server/config
 => Pid not found, process seems don't exist!
 => Process demonized with pid 92822 with Forever v.0.2.3</code></pre>
 
-The lane_groove daemon gets started on port 6666, a log and a pid file get generated within the same dir. Get the config via http:
+The lane_groove daemon gets started on port 6666, a log and a pid file get generated within the same dir.
 
-<pre><code>curl localhost:6666/.yaml</code></pre>
+h2. Retrieving the configuration
 
-Supported formats are json, xml, XML (capitalized xml; don't ask), yaml and rb.
+Give two files in a directory, @production.yaml@ and @staging.yaml@, and lane_groove being started within this directory:
 
-Stop the lane_groove server: @lane_groove stop@.
+<pre><code>curl localhost:6666/production.yaml</code></pre>
+
+will get your production configuration in yaml format.
+
+Supported formats are json, xml, XML (capitalized xml; we needed this; don't ask), yaml and rb.
+
+If you need other formats just open an issue.
+
+h2. Reloading
+
+lane_groove keeps the configuration in memory. To reload the config files, just add a @reload@ query string:
+
+<pre><code>curl localhost:6666/production.yaml?reload=true</code></pre>
+
+h2. Performance
+
+lane_groove is just single threaded, but most of the time it will server the content out of memory. On my MBP I benchmarked over 1000 requests per second when not reloading and over 400 requests per second when reloading two simple files (both with a json representation of the configuration; xml and yaml is slightly slower). Of course, with larger files this will be less, but still enough even for large files and large networks.
+
+h2. Testing config files
+
+lane_groove provides a second binary, lane_groove_test. If you run that within you config file directory you can test the syntax of your configuration files. It will output parsed and re-encoded yaml.
+
+h2. Static files
+
+If your lane_groove directory contains a subdirectory called "static" it will serve the files in there as static files.
+
+h2. Stopping lane_groove
+
+Stop the lane_groove server: cd to the directory and @lane_groove stop@.
+
+h2. The daemon
+
+lane_groove uses "foreverb":https://github.com/DAddYE/foreverb
+
+h2. Security
 
 Requests are restricted to the local network (127.0.0.1 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16). For more security… uhm… use a firewall or something.
+
+h2. Requirements
 
 Requirements are xml-simple, sinatra and rack-contrib. For test rack-test.

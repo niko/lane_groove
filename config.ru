@@ -4,4 +4,4 @@ WORKING_DIR = Dir.getwd
 
 require 'app'
 
-run ConfigApp
+run LaneGroove

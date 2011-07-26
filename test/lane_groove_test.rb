@@ -5,11 +5,11 @@ require 'test/unit'
 require 'rack/test'
 require 'fileutils'
 
-class ConfigAppTest < Test::Unit::TestCase
+class LaneGrooveTest < Test::Unit::TestCase
   include Rack::Test::Methods
   
   def app
-    ConfigApp
+    LaneGroove
   end
   
   def config

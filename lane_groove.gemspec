@@ -3,7 +3,7 @@
 Gem::Specification.new do |s|
   s.name         = 'lane_groove'
   s.version      = '0.0.2'
-  s.authors      = ['Niko Dittmann']
+  s.authors      = %w{Niko Dittmann}
   s.email        = 'mail@niko-dittmann.com'
   s.homepage     = 'http://github.com/niko/lane_groove'
   s.description  = 'A small HTTP configuration server. Eats YAML, returns JSON, XML, YAML and rb. Restricts requests to local subnet.'
@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   
   s.platform     = Gem::Platform::RUBY
   s.require_path = 'lib'
-  s.executables  = ['lane_groove']
+  s.executables  = %w{lane_groove lane_groove_test}
   s.bindir       = 'bin'
   
   s.rubyforge_project = 'nowarning'

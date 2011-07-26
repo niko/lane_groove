@@ -13,6 +13,6 @@ Forever.run do
   on_ready do
     at_exit { stop! }
     require '../lib/app.rb'
-    ConfigApp.run! :port => 6666
+    LaneGroove.run! :port => 6666
   end
 end
