@@ -61,7 +61,7 @@ class ConfigApp < Sinatra::Base
       when :json then config(*path).to_json
       when :xml  then XmlSimple.xml_out(config(*path), 'RootName' => nil, 'NoAttr' => true)
       when :XML  then XmlSimple.xml_out(config(*path).upcase_keys, 'RootName' => nil, 'NoAttr' => true)
-      when :rb  then config(*path).inspect
+      when :rb   then config(*path).inspect
       else ; "unknown format #{ext}"
     end
   end

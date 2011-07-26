@@ -1,0 +1,7 @@
+---
+:db:
+  :host: my-db-server
+  :user: root
+  :pass: none
+:redis:
+  :host: my-redis-server
