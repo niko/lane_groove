@@ -1,9 +1,18 @@
 h1. lane_groove
 
-Put your config-files as yaml into one dir, cd to this dir and enter @lane_groove@. The lane_groove daemon gets started on port 6666, a log and a pid file get generated within the same dir. Get the config via http:
+Put your config-files as yaml into one dir, cd to this dir and enter @lane_groove@:
+
+<pre><code>$: lane_groove 
+[26/07 17:40:41] Working directory is /Users/niko/laut/config_server/config
+=> Pid not found, process seems don't exist!
+=> Process demonized with pid 92822 with Forever v.0.2.3</code></pre>
+
+The lane_groove daemon gets started on port 6666, a log and a pid file get generated within the same dir. Get the config via http:
 
 <pre><code>curl localhost:6666/.yaml</code></pre>
 
 Supported formats are json, xml, XML (capitalized xml; don't ask), yaml and rb.
 
 Requests are restricted to the local network (127.0.0.1 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16). For more security… uhm… use a firewall or something.
+
+Requirements are xml-simple, sinatra and rack-contrib. For test rack-test.
