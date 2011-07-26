@@ -1,9 +1,9 @@
+WORKING_DIR = File.join(Dir.getwd, 'config_files')
+
 require '../lib/app.rb'
 require 'test/unit'
 require 'rack/test'
 require 'fileutils'
-
-WORKING_DIR = File.join(Dir.getwd, 'config_files')
 
 class ConfigAppTest < Test::Unit::TestCase
   include Rack::Test::Methods
@@ -64,51 +64,62 @@ class ConfigAppTest < Test::Unit::TestCase
   
   def test_all_rb
     get '/.rb'
+    assert_equal 'application/x-ruby; charset=utf-8', last_response.content_type
     assert_equal config.inspect, last_response.body
   end
   def test_db_rb
     get '/test/db.rb'
+    assert_equal 'application/x-ruby; charset=utf-8', last_response.content_type
     assert_equal config[:test][:db].inspect, last_response.body
   end
   
   def test_all_yaml
     get '/.yaml'
+    assert_equal 'application/x-yaml; charset=utf-8', last_response.content_type
     assert_equal config.to_yaml, last_response.body
   end
   def test_db_yaml
     get '/test/db.yaml'
+    assert_equal 'application/x-yaml; charset=utf-8', last_response.content_type
     assert_equal config[:test][:db].to_yaml, last_response.body
   end
   
   def test_all_json
     get '/.json'
+    assert_equal 'application/json; charset=utf-8', last_response.content_type
     assert_equal config.to_json, last_response.body
   end
   def test_db_json
     get '/test/db.json'
+    assert_equal 'application/json; charset=utf-8', last_response.content_type
     assert_equal config[:test][:db].to_json, last_response.body
   end
   
   def test_all_xml
     get '/.xml'
+    assert_equal 'application/xml; charset=utf-8', last_response.content_type
     assert_equal config_all_xml, last_response.body
   end
   def test_db_xml
     get '/test/db.xml'
+    assert_equal 'application/xml; charset=utf-8', last_response.content_type
     assert_equal config_db_xml, last_response.body
   end
   
   def test_all_XML
     get '/.XML'
+    assert_equal 'application/xml; charset=utf-8', last_response.content_type
     assert_equal config_all_XML, last_response.body
   end
   def test_db_XML
     get '/test/db.XML'
+    assert_equal 'application/xml; charset=utf-8', last_response.content_type
     assert_equal config_db_XML, last_response.body
   end
   
   def reset_assets
     FileUtils.mv('config_files/more_test.yaml', 'config_files/test.yaml') if File.exists?('config_files/more_test.yaml')
+    FileUtils.mv('config_files/no_static', 'config_files/static') if File.exists?('config_files/no_static')
   end
   
   def setup
@@ -136,6 +147,17 @@ class ConfigAppTest < Test::Unit::TestCase
     get '/.yaml', {}, {'REMOTE_ADDR' => '134.34.3.2'}
     assert_equal 403, last_response.status
     assert_equal '', last_response.body
+  end
+  
+  def test_static_files
+    get '/some.txt'
+    assert_equal 'some text', last_response.body
+  end
+  def test_static_files_no_dir
+    FileUtils.mv('config_files/static', 'config_files/no_static')
+    get '/some.txt'
+    assert_equal 404, last_response.status
+    assert_equal 'unknown format txt', last_response.body
   end
   
 end

@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name         = 'lane_groove'
-  s.version      = '0.0.1'
+  s.version      = '0.0.2'
   s.authors      = ['Niko Dittmann']
   s.email        = 'mail@niko-dittmann.com'
   s.homepage     = 'http://github.com/niko/lane_groove'
@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   
   s.files        = Dir['lib/**/*.rb']
   
-  # s.test_files   = Dir['spec/**/*_spec.rb']
+  s.test_files   = Dir['test/**/*_test.rb']
   
   s.platform     = Gem::Platform::RUBY
   s.require_path = 'lib'

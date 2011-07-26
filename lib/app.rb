@@ -21,9 +21,26 @@ class ConfigApp < Sinatra::Base
   
   set :config, nil
   
+  static_dir = File.join(WORKING_DIR, 'static')
+  
+  if File.exists? static_dir
+    puts "Serving static files from #{static_dir}"
+    set :static, true
+    set :public, static_dir
+  end
+  
   helpers do
     def config_files
       Dir.glob File.join(WORKING_DIR, '*.yaml')
+    end
+    
+    def content_type_for(format)
+      {
+        :json =>  {'Content-Type' => 'application/json; charset=utf-8'},
+        :xml =>   {'Content-Type' => 'application/xml; charset=utf-8'},
+        :yaml =>  {'Content-Type' => 'application/x-yaml; charset=utf-8'},
+        :rb =>    {'Content-Type' => 'application/x-ruby; charset=utf-8'}
+      }[format]
     end
     
     def reload_yaml
@@ -57,12 +74,12 @@ class ConfigApp < Sinatra::Base
     path = path.split('/').delete_if{|n| n.empty?}.compact.map{|n| n.to_sym}
     
     case ext
-      when :yaml then config(*path).to_yaml
-      when :json then config(*path).to_json
-      when :xml  then XmlSimple.xml_out(config(*path), 'RootName' => nil, 'NoAttr' => true)
-      when :XML  then XmlSimple.xml_out(config(*path).upcase_keys, 'RootName' => nil, 'NoAttr' => true)
-      when :rb   then config(*path).inspect
-      else ; "unknown format #{ext}"
+      when :yaml then [200, content_type_for(:yaml), config(*path).to_yaml]
+      when :json then [200, content_type_for(:json), config(*path).to_json]
+      when :xml  then [200, content_type_for(:xml), XmlSimple.xml_out(config(*path), 'RootName' => nil, 'NoAttr' => true)]
+      when :XML  then [200, content_type_for(:xml), XmlSimple.xml_out(config(*path).upcase_keys, 'RootName' => nil, 'NoAttr' => true)]
+      when :rb   then [200, content_type_for(:rb), config(*path).inspect]
+      else ; [404, {}, "unknown format #{ext}"]
     end
   end
   
