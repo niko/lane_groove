@@ -12,7 +12,7 @@ Forever.run do
   
   on_ready do
     at_exit { stop! }
-    require '../lib/app.rb'
+    require 'lane_groove'
     LaneGroove.run! :port => 6666
   end
 end

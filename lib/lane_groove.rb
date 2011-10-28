@@ -13,6 +13,15 @@ class Hash
       new_hash
     }
   end
+  
+  def recursive_values
+    self.inject([]){ |new_array, key_value|
+      key, value = key_value
+      value = value.recursive_values if value.is_a?(Hash)
+      new_array << value
+      new_array.flatten
+    }
+  end
 end
 
 class LaneGroove < Sinatra::Base
@@ -36,10 +45,11 @@ class LaneGroove < Sinatra::Base
     
     def content_type_for(format)
       {
-        :json =>  {'Content-Type' => 'application/json; charset=utf-8'},
-        :xml =>   {'Content-Type' => 'application/xml; charset=utf-8'},
-        :yaml =>  {'Content-Type' => 'application/x-yaml; charset=utf-8'},
-        :rb =>    {'Content-Type' => 'application/x-ruby; charset=utf-8'}
+        :json => {'Content-Type' => 'application/json; charset=utf-8'},
+        :xml  => {'Content-Type' => 'application/xml; charset=utf-8'},
+        :yaml => {'Content-Type' => 'application/x-yaml; charset=utf-8'},
+        :rb   => {'Content-Type' => 'application/x-ruby; charset=utf-8'},
+        :line => {'Content-Type' => 'application/x-line; charset=utf-8'}
       }[format]
     end
     
@@ -65,13 +75,26 @@ class LaneGroove < Sinatra::Base
       
       return cfg
     end
+    
+    def parse_path(path)
+      path.split('/').delete_if{|n| n.empty?}.compact.map{|n| n.to_sym}
+    end
+    def extract_values(path)
+      path.is_a?(Hash) ? path.recursive_values : path
+    end
+  end
+  
+  before do
+    reload_yaml if params['reload']
+  end
+  
+  get /^(.*)\.line$/ do |paths|
+    [200, content_type_for(:line), paths.split(',').map{ |path| extract_values config(*parse_path(path)) }.flatten.join(params['F'] || ' ')]
   end
   
   get /^(.*)\.([\w\d]{2,4})$/ do |path, ext|
-    reload_yaml if params['reload']
-    
     ext = ext.to_sym
-    path = path.split('/').delete_if{|n| n.empty?}.compact.map{|n| n.to_sym}
+    path = parse_path(path)
     
     case ext
       when :yaml then [200, content_type_for(:yaml), config(*path).to_yaml]

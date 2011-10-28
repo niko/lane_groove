@@ -13,15 +13,25 @@ The lane_groove daemon gets started on port 6666, a log and a pid file get gener
 
 h2. Retrieving the configuration
 
-Give two files in a directory, @production.yaml@ and @staging.yaml@, and lane_groove being started within this directory:
+With two files in a directory, @production.yaml@ and @staging.yaml@, and lane_groove being started within this directory:
 
 <pre><code>curl localhost:6666/production.yaml</code></pre>
 
 will get your production configuration in yaml format.
 
-Supported formats are json, xml, XML (capitalized xml; we needed this; don't ask), yaml and rb.
+Supported formats are json, xml, XML (capitalized xml; we needed this; don't ask), yaml, rb and line (see below).
 
 If you need other formats just open an issue.
+
+h2. Line output
+
+Line output is special as it only supports single attributes. The URL contains a comma separated list of nodes and returns a single line with just these attributes separated by spaces. For nodes that are not leaves, the just their values returned recursively. This way the output can easily be parsed with awk:
+
+<pre><code>mysql `curl localhost:6666/db/host,/db/user,/db/database,/db/password.line | awk '{print "--host="$1" --user="$2" --password="$4" "$3}'`</code></pre>
+
+or even:
+
+<pre><code>mysql `curl localhost:6666/db.line | awk '{print "--host="$1" --user="$2" --password="$4" "$3}'`</code></pre>
 
 h2. Reloading
 
