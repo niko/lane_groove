@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+require 'yaml'
 require 'forever'
 
 WORKING_DIR = Dir.getwd
