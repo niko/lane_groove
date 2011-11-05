@@ -6,7 +6,7 @@ require 'rack/contrib'
 
 class Hash
   def upcase_keys
-    self.inject({}){ |new_hash, key_value|
+    inject({}){ |new_hash, key_value|
       key, value = key_value
       value = value.upcase_keys if value.is_a?(Hash)
       new_hash[key.upcase] = value
@@ -15,12 +15,25 @@ class Hash
   end
   
   def recursive_values
-    self.inject([]){ |new_array, key_value|
+    inject([]){ |new_array, key_value|
       key, value = key_value
       value = value.recursive_values if value.is_a?(Hash)
       new_array << value
       new_array.flatten
     }
+  end
+  
+  def remove_nil_values
+    inject({}){ |new_hash, key_value|
+      key, value = key_value
+      value = value.remove_nil_values if value.is_a?(Hash)
+      new_hash[key] = value unless value.nil?
+      new_hash
+    }
+  end
+  
+  def to_xml(root=nil)
+    XmlSimple.xml_out(self, 'RootName' => root, 'NoAttr' => true)
   end
 end
 
@@ -35,7 +48,7 @@ class LaneGroove < Sinatra::Base
   if File.exists? static_dir
     puts "Serving static files from #{static_dir}"
     set :static, true
-    set :public, static_dir
+    set :public_folder, static_dir
   end
   
   helpers do
@@ -58,10 +71,8 @@ class LaneGroove < Sinatra::Base
       
       config_files.each do |file|
         puts "Loading #{file}"
-        self.class.config[File.basename(file, '.yaml').to_sym] = YAML.load_file(file)
+        self.class.config[File.basename(file, '.yaml')] = YAML.load_file(file)
       end
-      
-      config.to_yaml
     end
     
     def config(*path)
@@ -77,7 +88,7 @@ class LaneGroove < Sinatra::Base
     end
     
     def parse_path(path)
-      path.split('/').delete_if{|n| n.empty?}.compact.map{|n| n.to_sym}
+      path.split('/').delete_if{|n| n.empty?}.compact.map{|n| n}
     end
     def extract_values(path)
       path.is_a?(Hash) ? path.recursive_values : path
@@ -94,14 +105,14 @@ class LaneGroove < Sinatra::Base
   
   get /^(.*)\.([\w\d]{2,4})$/ do |path, ext|
     ext = ext.to_sym
-    path = parse_path(path)
+    conf = config *parse_path(path)
     
     case ext
-      when :yaml then [200, content_type_for(:yaml), config(*path).to_yaml]
-      when :json then [200, content_type_for(:json), config(*path).to_json]
-      when :xml  then [200, content_type_for(:xml), XmlSimple.xml_out(config(*path), 'RootName' => nil, 'NoAttr' => true)]
-      when :XML  then [200, content_type_for(:xml), XmlSimple.xml_out(config(*path).upcase_keys, 'RootName' => nil, 'NoAttr' => true)]
-      when :rb   then [200, content_type_for(:rb), config(*path).inspect]
+      when :yaml then [200, content_type_for(:yaml), conf.to_yaml]
+      when :json then [200, content_type_for(:json), conf.to_json]
+      when :xml  then [200, content_type_for(:xml), conf.remove_nil_values.to_xml]
+      when :XML  then [200, content_type_for(:xml), conf.remove_nil_values.upcase_keys.to_xml]
+      when :rb   then [200, content_type_for(:rb), conf.inspect]
       else ; [404, {}, "unknown format #{ext}"]
     end
   end

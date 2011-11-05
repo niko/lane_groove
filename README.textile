@@ -23,6 +23,10 @@ Supported formats are json, xml, XML (capitalized xml; we needed this; don't ask
 
 If you need other formats just open an issue.
 
+h3. XML output and nil values
+
+Keys with nil values are removed from the XML output as there's no canonical way to represent these in XML.
+
 h2. Line output
 
 Line output is special as it only supports single attributes. The URL contains a comma separated list of nodes and returns a single line with just these attributes separated by spaces. For nodes that are not leaves, the just their values returned recursively. This way the output can easily be parsed with awk:
