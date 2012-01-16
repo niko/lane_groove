@@ -1,5 +1,12 @@
 h1. lane_groove
 
+h2. Version 0.1 breaking changes
+
+* @.XML@ (upcased) and @.rb@ are no longer supported.
+* Static files are served under url @/static@ now.
+* HTTP accept headers are taken into account in addition to file endings
+* format defaults to json
+
 h2. Getting started
 
 Put your config-files as yaml into one dir, cd to this dir and enter @lane_groove@:
@@ -19,7 +26,7 @@ With two files in a directory, @production.yaml@ and @staging.yaml@, and lane_gr
 
 will get your production configuration in yaml format.
 
-Supported formats are json, xml, XML (capitalized xml; we needed this; don't ask), yaml, rb and line (see below).
+Supported formats are json, xml, yaml and line (see below).
 
 If you need other formats just open an issue.
 
@@ -37,6 +44,10 @@ or even:
 
 <pre><code>mysql `curl localhost:6666/db.line | awk '{print "--host="$1" --user="$2" --password="$4" "$3}'`</code></pre>
 
+You can specify a separator in the query string:
+
+<pre><code>mysql `curl localhost:6666/db/host,/db/user,/db/database,/db/password.line?F=, | awk -F ',' '{print "--host="$1" --user="$2" --password="$4" "$3}'`</code></pre>
+
 h2. Reloading
 
 lane_groove keeps the configuration in memory. To reload the config files, just add a @reload@ query string:
@@ -53,7 +64,9 @@ lane_groove provides a second binary, lane_groove_test. If you run that within y
 
 h2. Static files
 
-If your lane_groove directory contains a subdirectory called "static" it will serve the files in there as static files.
+If your lane_groove directory contains a subdirectory called "static" it will serve the files in there as static files:
+
+<pre><code>curl localhost:6666/static/some.txt</code></pre>
 
 h2. Stopping lane_groove
 
@@ -69,7 +82,7 @@ Requests are restricted to the local network (127.0.0.1 10.0.0.0/8 172.16.0.0/12
 
 h2. Requirements
 
-Requirements are xml-simple, sinatra and rack-contrib. For tests rack-test.
+Requirements are xml-simple, sinatra, sinatra/respond_with and rack-contrib. For tests rack-test.
 
 h2. License
 

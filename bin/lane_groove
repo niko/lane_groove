@@ -4,6 +4,7 @@ require 'forever'
 
 WORKING_DIR = Dir.getwd
 puts "Working directory is #{WORKING_DIR}"
+puts "You can stop the lane_groove server with\n  lane_groove stop"
 puts "WARNING: Working directory is empty!" if Dir.glob(File.join(WORKING_DIR, '*.yaml')).empty?
 
 Forever.run do

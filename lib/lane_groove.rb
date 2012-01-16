@@ -2,18 +2,15 @@ require 'yaml'
 require 'json'
 require 'xmlsimple'
 require 'sinatra/base'
+require 'sinatra/respond_with'
 require 'rack/contrib'
 
+if Dir.glob(File.join(WORKING_DIR, '*.yaml')).empty?
+  puts "No config file(s) found in #{WORKING_DIR}. Please put one or more YAML files in #{WORKING_DIR}."
+  exit
+end
+
 class Hash
-  def upcase_keys
-    inject({}){ |new_hash, key_value|
-      key, value = key_value
-      value = value.upcase_keys if value.is_a?(Hash)
-      new_hash[key.upcase] = value
-      new_hash
-    }
-  end
-  
   def recursive_values
     inject([]){ |new_array, key_value|
       key, value = key_value
@@ -37,33 +34,56 @@ class Hash
   end
 end
 
+class Rack::Static
+  def initialize(app, options={})
+    # don't default to 'index.html' as per https://github.com/lgierth/rack/blob/5ab871f2a86ca4f943a5b1d0a3d0f32a2f9f77ef/lib/rack/static.rb
+    @app = app
+    @urls = options[:urls]
+    root = options[:root]
+    @file_server = Rack::File.new(root)
+  end
+end
+
+# inspired by https://github.com/crohr/rack-accept-header-updater/blob/master/lib/rack/accept_header_updater.rb
+# turns file extensions into accept headers.
+module Rack
+  class AcceptHeaderUpdater
+    def initialize(app)
+      @app = app
+    end
+    
+    def call(env)
+      req = Rack::Request.new(env)
+      if ext = (req.path_info.match('\.') && ".#{req.path_info.split('.').last}")
+        if mime_type = Rack::Mime::MIME_TYPES[ext.downcase]
+          env['HTTP_ACCEPT'] = [mime_type, env['HTTP_ACCEPT']].join(",")
+          req.path_info.gsub!(/#{ext}$/, '')
+        end
+      end
+      @app.call(env)
+    end
+  end
+end
+
 class LaneGroove < Sinatra::Base
   use Rack::CommonLogger
   use Rack::Access, '/' => %w{ 127.0.0.1 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 }
   
-  set :config, nil
-  
-  static_dir = File.join(WORKING_DIR, 'static')
-  
-  if File.exists? static_dir
-    puts "Serving static files from #{static_dir}"
-    set :static, true
-    set :public_folder, static_dir
+  # We're using Rack::Static instead of Sinatra static so we can put it in the Middleware stack before AcceptHeaderUpdater
+  if File.exists?(static_dir = File.join(WORKING_DIR, 'static'))
+    puts "Serving static files from #{static_dir}: #{Dir.glob File.join(static_dir, '*')}"
+    use Rack::Static, :urls => ['/static'], :root => WORKING_DIR
   end
+  
+  use Rack::AcceptHeaderUpdater
+  register Sinatra::RespondWith
+  
+  disable :protection
+  set :config, nil
   
   helpers do
     def config_files
       Dir.glob File.join(WORKING_DIR, '*.yaml')
-    end
-    
-    def content_type_for(format)
-      {
-        :json => {'Content-Type' => 'application/json; charset=utf-8'},
-        :xml  => {'Content-Type' => 'application/xml; charset=utf-8'},
-        :yaml => {'Content-Type' => 'application/x-yaml; charset=utf-8'},
-        :rb   => {'Content-Type' => 'application/x-ruby; charset=utf-8'},
-        :line => {'Content-Type' => 'application/x-line; charset=utf-8'}
-      }[format]
     end
     
     def reload_yaml
@@ -80,8 +100,7 @@ class LaneGroove < Sinatra::Base
       cfg = self.class.config
       
       path.each do |node|
-        cfg = cfg[node]
-        break if cfg.nil?
+        break if (cfg = cfg[node]).nil?
       end
       
       return cfg
@@ -100,20 +119,17 @@ class LaneGroove < Sinatra::Base
   end
   
   get /^(.*)\.line$/ do |paths|
-    [200, content_type_for(:line), paths.split(',').map{ |path| extract_values config(*parse_path(path)) }.flatten.join(params['F'] || ' ')]
+    content_type 'application/x-line; charset=utf-8'
+    paths.split(',').map{ |path| extract_values config(*parse_path(path)) }.flatten.join(params['F'] || ' ')
   end
   
-  get /^(.*)\.([\w\d]{2,4})$/ do |path, ext|
-    ext = ext.to_sym
-    conf = config *parse_path(path)
+  get /^(.*)$/, :provides => [:json, :yaml, :xml] do |path|
+    halt 404 unless (conf = config *parse_path(path))
     
-    case ext
-      when :yaml then [200, content_type_for(:yaml), conf.to_yaml]
-      when :json then [200, content_type_for(:json), conf.to_json]
-      when :xml  then [200, content_type_for(:xml), conf.remove_nil_values.to_xml]
-      when :XML  then [200, content_type_for(:xml), conf.remove_nil_values.upcase_keys.to_xml]
-      when :rb   then [200, content_type_for(:rb), conf.inspect]
-      else ; [404, {}, "unknown format #{ext}"]
+    respond_to do |format|
+      format.json { conf.to_json }
+      format.yaml { conf.to_yaml }
+      format.xml  { conf.remove_nil_values.to_xml }
     end
   end
   

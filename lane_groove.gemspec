@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name         = 'lane_groove'
-  s.version      = '0.0.5'
+  s.version      = '0.1.0'
   s.authors      = %w{Niko Dittmann}
   s.email        = 'mail@niko-dittmann.com'
   s.homepage     = 'http://github.com/niko/lane_groove'
@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
   
   s.add_dependency 'xml-simple'
   s.add_dependency 'sinatra'
+  s.add_dependency 'sinatra-contrib'
   s.add_dependency 'rack-contrib'
   s.add_dependency 'foreverb'
   
