@@ -50,8 +50,7 @@ You can specify a separator in the query string:
 
 Real live example shell script:
 
-<pre><code>
-#!/bin/bash
+<pre><code>#!/bin/bash
 
 MYSQL='show tables'
 
