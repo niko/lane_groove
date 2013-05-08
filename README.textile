@@ -48,6 +48,19 @@ You can specify a separator in the query string:
 
 <pre><code>mysql `curl localhost:6666/db/host,/db/user,/db/database,/db/password.line?F=, | awk -F ',' '{print "--host="$1" --user="$2" --password="$4" "$3}'`</code></pre>
 
+Real live example shell script:
+
+<pre><code>
+#!/bin/bash
+
+MYSQL='show tables'
+
+CMD=`curl confserver:6666/conf/mysql/host,/conf/mysql/username,/conf/mysql/database,/conf/mysql/password.line?F=,  | awk -F ',' -v MYSQL="$MYSQL" '{print "mysql \x27--host="$1"\x27 \x27--user="$2"\x27 \x27--password="$4"\x27 \x27--execute="MYSQL"\x27 "$3}'`
+
+# echo $CMD
+eval $CMD
+</code></pre>
+
 h2. Reloading
 
 lane_groove keeps the configuration in memory. To reload the config files, just add a @reload@ query string:
