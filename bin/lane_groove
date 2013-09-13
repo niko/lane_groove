@@ -15,6 +15,6 @@ Forever.run do
   on_ready do
     at_exit { stop! }
     require 'lane_groove'
-    LaneGroove.run! :port => 6666
+    LaneGroove.run! :port => 6666, :bind => '0.0.0.0'
   end
 end
